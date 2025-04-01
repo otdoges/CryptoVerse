@@ -9,7 +9,135 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      portfolios: {
+        Row: {
+          amount: number
+          average_price: number
+          chain_id: string
+          created_at: string
+          id: string
+          token_address: string
+          token_name: string
+          token_symbol: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          average_price: number
+          chain_id: string
+          created_at?: string
+          id?: string
+          token_address: string
+          token_name: string
+          token_symbol: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          average_price?: number
+          chain_id?: string
+          created_at?: string
+          id?: string
+          token_address?: string
+          token_name?: string
+          token_symbol?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          id: string
+          updated_at: string
+          username: string | null
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          updated_at?: string
+          username?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          updated_at?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          amount: number
+          chain_id: string
+          id: string
+          price: number
+          timestamp: string
+          token_address: string
+          token_symbol: string
+          total_value: number
+          transaction_type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          chain_id: string
+          id?: string
+          price: number
+          timestamp?: string
+          token_address: string
+          token_symbol: string
+          total_value: number
+          transaction_type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          chain_id?: string
+          id?: string
+          price?: number
+          timestamp?: string
+          token_address?: string
+          token_symbol?: string
+          total_value?: number
+          transaction_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      watchlists: {
+        Row: {
+          chain_id: string
+          created_at: string
+          id: string
+          token_address: string
+          token_name: string
+          token_symbol: string
+          user_id: string
+        }
+        Insert: {
+          chain_id: string
+          created_at?: string
+          id?: string
+          token_address: string
+          token_name: string
+          token_symbol: string
+          user_id: string
+        }
+        Update: {
+          chain_id?: string
+          created_at?: string
+          id?: string
+          token_address?: string
+          token_name?: string
+          token_symbol?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

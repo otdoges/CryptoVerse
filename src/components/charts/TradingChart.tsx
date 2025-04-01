@@ -1,6 +1,7 @@
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
+import { TimeframeOption } from "@/types";
 import {
   Select,
   SelectContent,
@@ -8,69 +9,47 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { TimeframeOption } from "@/types";
+import DexChart from "./DexChart";
 
 interface TradingChartProps {
   symbol: string;
 }
 
+// Hard-coded token addresses for demo purposes
+const tokenAddresses: Record<string, { address: string, chainId: string }> = {
+  "ETH": { 
+    address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2", 
+    chainId: "ethereum"
+  },
+  "BTC": { 
+    address: "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599", // WBTC on Ethereum
+    chainId: "ethereum"
+  },
+  "SOL": { 
+    address: "0xd31a59c85ae9d8edefec411d448f90841571b89c", // Wrapped SOL on ETH
+    chainId: "ethereum"
+  },
+  "BNB": {
+    address: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c", 
+    chainId: "bsc"
+  },
+  "ADA": {
+    address: "0x3ee2200efb3400fabb9aacf31297cbdd1d435d47", // Wrapped ADA on BSC
+    chainId: "bsc"
+  }
+};
+
 const TradingChart = ({ symbol }: TradingChartProps) => {
-  const chartContainerRef = useRef<HTMLDivElement>(null);
   const [timeframe, setTimeframe] = useState<string>("1d");
   
   const timeframeOptions: TimeframeOption[] = [
-    { label: "1m", value: "1m" },
-    { label: "5m", value: "5m" },
-    { label: "15m", value: "15m" },
     { label: "1h", value: "1h" },
-    { label: "4h", value: "4h" },
-    { label: "1d", value: "1d" },
-    { label: "1w", value: "1w" },
+    { label: "6h", value: "6h" },
+    { label: "24h", value: "1d" },
+    { label: "7d", value: "7d" },
   ];
-  
-  useEffect(() => {
-    // In a real app, this would initialize TradingView's Advanced Chart widget
-    // or connect to a charting library like TradingView, Chart.js, or Lightweight Charts
-    
-    if (chartContainerRef.current) {
-      const mockChartContent = document.createElement("div");
-      mockChartContent.className = "w-full h-full flex items-center justify-center";
-      mockChartContent.innerHTML = `
-        <div class="text-center">
-          <div class="text-xl font-semibold text-white mb-2">${symbol.toUpperCase()} Chart (${timeframe})</div>
-          <div class="text-gray-400 mb-6">Mock Trading Chart - In a real implementation, this would integrate with TradingView or similar</div>
-          <div class="w-full h-64 bg-crypto-dark-hover rounded-lg relative overflow-hidden">
-            <div class="absolute inset-0 flex items-center justify-center opacity-20">
-              <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
-                <polyline points="16 7 22 7 22 13"></polyline>
-              </svg>
-            </div>
-            
-            <div class="absolute bottom-0 w-full">
-              <div class="h-40 bg-gradient-to-t from-crypto-blue/10 to-transparent"></div>
-              <svg class="w-full h-40 -mt-40" preserveAspectRatio="none" viewBox="0 0 100 100">
-                <path 
-                  d="M0,50 Q10,30 20,50 T40,50 T60,40 T80,60 T100,50 V100 H0 Z" 
-                  fill="none" 
-                  stroke="rgb(14, 165, 233)" 
-                  stroke-width="2"
-                ></path>
-              </svg>
-            </div>
-          </div>
-        </div>
-      `;
-      
-      // Clear previous chart if any
-      while (chartContainerRef.current.firstChild) {
-        chartContainerRef.current.removeChild(chartContainerRef.current.firstChild);
-      }
-      
-      chartContainerRef.current.appendChild(mockChartContent);
-    }
-    
-  }, [symbol, timeframe]);
+
+  const tokenInfo = tokenAddresses[symbol.toUpperCase()];
   
   return (
     <Card className="bg-crypto-dark-card border-crypto-gray p-4 h-full">
@@ -95,7 +74,25 @@ const TradingChart = ({ symbol }: TradingChartProps) => {
           </Select>
         </div>
       </div>
-      <div ref={chartContainerRef} className="chart-container" />
+      
+      {tokenInfo ? (
+        <DexChart 
+          tokenAddress={tokenInfo.address}
+          tokenSymbol={symbol.toUpperCase()}
+          chainId={tokenInfo.chainId}
+        />
+      ) : (
+        <div className="h-[400px] flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-xl font-semibold text-white mb-2">
+              {symbol.toUpperCase()} Chart ({timeframe})
+            </div>
+            <div className="text-gray-400 mb-6">
+              No DexScreener data available for this token
+            </div>
+          </div>
+        </div>
+      )}
     </Card>
   );
 };

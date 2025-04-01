@@ -94,3 +94,101 @@ export interface TimeframeOption {
   label: string;
   value: string;
 }
+
+// DexScreener API Types
+export interface DexScreenerPair {
+  chainId: string;
+  dexId: string;
+  url: string;
+  pairAddress: string;
+  baseToken: DexToken;
+  quoteToken: DexToken;
+  priceNative: string;
+  priceUsd: string;
+  txns: {
+    m5: {
+      buys: number;
+      sells: number;
+    };
+    h1: {
+      buys: number;
+      sells: number;
+    };
+    h6: {
+      buys: number;
+      sells: number;
+    };
+    h24: {
+      buys: number;
+      sells: number;
+    };
+  };
+  volume: {
+    h24: number;
+    h6: number;
+    h1: number;
+    m5: number;
+  };
+  priceChange: {
+    h24: number;
+    h6: number;
+    h1: number;
+    m5: number;
+  };
+  liquidity?: {
+    usd?: number;
+    base?: number;
+    quote?: number;
+  };
+  fdv?: number;
+  marketCap?: number;
+}
+
+export interface DexToken {
+  address: string;
+  name: string;
+  symbol: string;
+}
+
+export interface DexScreenerSearchResponse {
+  pairs: DexScreenerPair[];
+}
+
+// Supabase Portfolio Types
+export interface SupabasePortfolio {
+  id: string;
+  user_id: string;
+  token_address: string;
+  chain_id: string;
+  token_symbol: string;
+  token_name: string;
+  amount: number;
+  average_price: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// Supabase Transaction Types
+export interface SupabaseTransaction {
+  id: string;
+  user_id: string;
+  token_address: string;
+  chain_id: string;
+  token_symbol: string;
+  transaction_type: 'BUY' | 'SELL';
+  amount: number;
+  price: number;
+  total_value: number;
+  timestamp: string;
+}
+
+// Supabase Watchlist Types
+export interface SupabaseWatchlist {
+  id: string;
+  user_id: string;
+  token_address: string;
+  chain_id: string;
+  token_symbol: string;
+  token_name: string;
+  created_at: string;
+}

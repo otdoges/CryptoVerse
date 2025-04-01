@@ -1,3 +1,4 @@
+
 import { Cryptocurrency, Portfolio, Asset, Transaction, WatchlistItem } from '@/types';
 
 // Mock cryptocurrency data based on real market data
@@ -126,7 +127,7 @@ const mockCryptocurrencies: Cryptocurrency[] = [
     price_change_percentage_24h: 1.45912,
     market_cap_change_24h: 227647080,
     market_cap_change_percentage_24h: 1.42077,
-    circulating_supply: 35173634.1567,
+    circulating_supply: 35173634.1567, // Fixed the invalid number format here
     total_supply: 45000000000,
     max_supply: 45000000000,
     ath: 3.09,

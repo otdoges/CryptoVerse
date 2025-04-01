@@ -2,6 +2,8 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { AuthState, User } from '@/types';
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { getCurrentUser, loginWithEmail, registerWithEmail, logout as supabaseLogout } from "@/services/supabaseService";
 
 interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<void>;
@@ -19,55 +21,64 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
 
   useEffect(() => {
-    // Check if user is logged in from local storage
-    const storedUser = localStorage.getItem('dfi_user');
-    if (storedUser) {
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (session) {
+          try {
+            const user = await getCurrentUser();
+            setAuthState({
+              user,
+              isAuthenticated: !!user,
+              isLoading: false,
+            });
+          } catch (error) {
+            console.error('Failed to get user profile:', error);
+            setAuthState({
+              user: null,
+              isAuthenticated: false,
+              isLoading: false,
+            });
+          }
+        } else {
+          setAuthState({
+            user: null,
+            isAuthenticated: false,
+            isLoading: false,
+          });
+        }
+      }
+    );
+
+    // THEN check for existing session
+    const checkSession = async () => {
       try {
-        const parsedUser = JSON.parse(storedUser);
+        const user = await getCurrentUser();
         setAuthState({
-          user: parsedUser,
-          isAuthenticated: true,
+          user,
+          isAuthenticated: !!user,
           isLoading: false,
         });
       } catch (error) {
-        console.error('Failed to parse stored user:', error);
-        localStorage.removeItem('dfi_user');
+        console.error('Failed to get current session:', error);
         setAuthState({
           user: null,
           isAuthenticated: false,
           isLoading: false,
         });
       }
-    } else {
-      setAuthState({
-        user: null,
-        isAuthenticated: false,
-        isLoading: false,
-      });
-    }
+    };
+
+    checkSession();
+    
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const login = async (email: string, password: string): Promise<void> => {
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      
-      // In a real app, this would validate credentials against your backend
-      // For demo purposes, we'll create a mock user
-      const mockUser: User = {
-        id: '1',
-        email: email,
-        username: email.split('@')[0],
-      };
-      
-      localStorage.setItem('dfi_user', JSON.stringify(mockUser));
-      
-      setAuthState({
-        user: mockUser,
-        isAuthenticated: true,
-        isLoading: false,
-      });
-      
+      await loginWithEmail(email, password);
       toast.success("Successfully logged in!");
     } catch (error) {
       console.error('Login error:', error);
@@ -78,25 +89,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = async (email: string, username: string, password: string): Promise<void> => {
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      
-      // In a real app, this would register a new user in your backend
-      const mockUser: User = {
-        id: Date.now().toString(),
-        email,
-        username,
-      };
-      
-      localStorage.setItem('dfi_user', JSON.stringify(mockUser));
-      
-      setAuthState({
-        user: mockUser,
-        isAuthenticated: true,
-        isLoading: false,
-      });
-      
-      toast.success("Account created successfully!");
+      await registerWithEmail(email, password, username);
+      toast.success("Account created successfully! Please verify your email.");
     } catch (error) {
       console.error('Registration error:', error);
       toast.error("Failed to create account. Please try again.");
@@ -105,13 +99,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = (): void => {
-    localStorage.removeItem('dfi_user');
-    setAuthState({
-      user: null,
-      isAuthenticated: false,
-      isLoading: false,
+    supabaseLogout().then(() => {
+      setAuthState({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+      });
+      toast.info("You've been logged out");
+    }).catch(error => {
+      console.error("Logout error:", error);
+      toast.error("Failed to log out. Please try again.");
     });
-    toast.info("You've been logged out");
   };
 
   return (
