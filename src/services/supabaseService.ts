@@ -96,7 +96,7 @@ export const getUserPortfolio = async (userId: string): Promise<SupabasePortfoli
 };
 
 export const updatePortfolioAsset = async (
-  portfolioItem: Partial<SupabasePortfolio> & { user_id: string; token_address: string; chain_id: string }
+  portfolioItem: Partial<SupabasePortfolio> & { user_id: string; token_address: string; chain_id: string; token_symbol: string; token_name: string; amount: number; average_price: number }
 ): Promise<SupabasePortfolio> => {
   try {
     // Check if the asset already exists
@@ -169,7 +169,7 @@ export const getUserTransactions = async (userId: string): Promise<SupabaseTrans
       .order("timestamp", { ascending: false });
     
     if (error) throw error;
-    return data || [];
+    return data as SupabaseTransaction[] || [];
   } catch (error) {
     console.error("Get transactions error:", error);
     throw error;
@@ -185,7 +185,7 @@ export const addTransaction = async (transaction: Omit<SupabaseTransaction, 'id'
       .single();
     
     if (error) throw error;
-    return data;
+    return data as SupabaseTransaction;
   } catch (error) {
     console.error("Add transaction error:", error);
     throw error;
@@ -234,6 +234,63 @@ export const removeFromWatchlist = async (itemId: string): Promise<void> => {
     if (error) throw error;
   } catch (error) {
     console.error("Remove from watchlist error:", error);
+    throw error;
+  }
+};
+
+// Additional authentication features
+export const forgotPassword = async (email: string): Promise<void> => {
+  try {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + '/reset-password',
+    });
+    
+    if (error) throw error;
+  } catch (error) {
+    console.error("Forgot password error:", error);
+    throw error;
+  }
+};
+
+export const resetPassword = async (password: string): Promise<void> => {
+  try {
+    const { error } = await supabase.auth.updateUser({
+      password: password,
+    });
+    
+    if (error) throw error;
+  } catch (error) {
+    console.error("Reset password error:", error);
+    throw error;
+  }
+};
+
+export const updateUserProfile = async (userId: string, username: string): Promise<void> => {
+  try {
+    const { error } = await supabase
+      .from("profiles")
+      .update({ username, updated_at: new Date().toISOString() })
+      .eq("id", userId);
+    
+    if (error) throw error;
+  } catch (error) {
+    console.error("Update profile error:", error);
+    throw error;
+  }
+};
+
+export const oauthLogin = async (provider: 'google' | 'github'): Promise<void> => {
+  try {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: provider,
+      options: {
+        redirectTo: window.location.origin + '/dashboard',
+      },
+    });
+    
+    if (error) throw error;
+  } catch (error) {
+    console.error(`${provider} login error:`, error);
     throw error;
   }
 };

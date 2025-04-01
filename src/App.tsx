@@ -12,6 +12,9 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Trade from "./pages/Trade";
 import NotFound from "./pages/NotFound";
+import ResetPassword from "./pages/ResetPassword";
+import Profile from "./pages/Profile";
+import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +32,9 @@ const App = () => (
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/trade" element={<Trade />} />
             <Route path="/trade/:symbol" element={<Trade />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/settings" element={<Settings />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
