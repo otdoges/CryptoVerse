@@ -1,12 +1,9 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Settings as SettingsIcon, Bell, Shield, User, LogOut } from "lucide-react";
 
@@ -41,14 +38,23 @@ const Settings = () => {
     navigate("/");
   };
 
-  const updateSetting = (category: string, setting: string, value: boolean) => {
-    setSettings(prev => ({
-      ...prev,
-      [category]: {
-        ...prev[category as keyof typeof prev],
-        [setting]: value
-      }
-    }));
+  // Fixed the spread operator type issue by ensuring we're working with object types
+  const updateSetting = (category: keyof typeof settings, setting: string, value: boolean) => {
+    setSettings(prev => {
+      // Create a copy of the current category settings
+      const updatedCategory = { 
+        ...prev[category] as Record<string, boolean> 
+      };
+      
+      // Update the specific setting
+      updatedCategory[setting] = value;
+      
+      // Return the updated settings object
+      return {
+        ...prev,
+        [category]: updatedCategory
+      };
+    });
   };
 
   if (isLoading || !user) {
